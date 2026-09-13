@@ -1,0 +1,103 @@
+import type { PolicyCase } from "../../types/policy";
+import { effects, trend } from "./shared";
+
+export const traditionalMarket: PolicyCase = {
+  id: "traditional-market",
+  title: "전통시장 쇠퇴",
+  emoji: "🧺",
+  category: "economy",
+  difficulty: "beginner",
+  duration: "6분",
+  cityName: "F시",
+  description:
+    "대형마트와 온라인 쇼핑에 밀린 전통시장의 매출이 매년 줄고 있습니다. 시설 개선, 배달, 청년 상인, 이벤트 중 어디를 고를지 정합니다.",
+  briefing:
+    "F시 중앙시장의 점포 매출이 3년 연속 감소했고 빈 점포가 22%입니다. 상인회는 아케이드 재설치를, 청년은 배달과 야시장을 주장합니다. 인근 주민은 주차 혼잡을 걱정합니다.",
+  background:
+    "시설은 노후했고 카드 결제와 위생 이미지가 약합니다. 그러나 원도심의 사회적 거점 기능은 남아 있습니다.",
+  totalBudget: 60,
+  statistics: [
+    { id: "sales", label: "점포 평균 매출", value: "-16%", hint: "3년" },
+    { id: "empty", label: "빈 점포 비율", value: "22%" },
+    { id: "age", label: "상인 평균 연령", value: "61세" },
+    { id: "card", label: "카드 결제 비중", value: "38%" },
+    { id: "park", label: "주차 민원", value: "월 210건" },
+  ],
+  charts: [
+    trend("sales", "매출 지수", "점", [100, 96, 91, 87, 84]),
+    trend("empty", "빈 점포 비율", "%", [12, 14, 17, 20, 22]),
+  ],
+  problemOptions: [
+    { id: "facility", label: "시설·위생·결제 낙후", hint: "불편한 이용 경험", alignedPolicies: ["facility"] },
+    { id: "demand", label: "고객이 온라인으로 이동", hint: "접근 채널 부재", alignedPolicies: ["digital"] },
+    { id: "succession", label: "후대 상인 부재", hint: "점포 승계 단절", alignedPolicies: ["youth"] },
+    { id: "access", label: "주차·동선 불편", hint: "방문 장벽", alignedPolicies: ["parking"] },
+  ],
+  policyOptions: [
+    {
+      id: "facility",
+      title: "시설 현대화",
+      summary: "아케이드·전기·위생",
+      description: "비가림 시설, 화장실, 전기 용량을 개선합니다.",
+      baseCost: 22,
+      minCost: 10,
+      maxCost: 35,
+      expectedEffects: ["이용 편의 상승", "안전 체감"],
+      risks: ["공사 기간 매출 타격", "하드웨어만으로 수요 회복 한계"],
+      effects: effects({ effectiveness: 5, satisfaction: 6, equity: 4, feasibility: 5, finance: -4, sustainability: 4 }),
+    },
+    {
+      id: "digital",
+      title: "공동 배달·스마트 주문",
+      summary: "시장 앱과 배송",
+      description: "공동 배송단과 간편결제를 도입합니다.",
+      baseCost: 14,
+      minCost: 5,
+      maxCost: 22,
+      expectedEffects: ["신규 고객 접점", "카드 결제 확대"],
+      risks: ["수수료 부담", "고령 상인 적응"],
+      effects: effects({ effectiveness: 6, satisfaction: 5, equity: 3, feasibility: 5, finance: -2, sustainability: 5 }),
+    },
+    {
+      id: "youth",
+      title: "청년 상인 입점",
+      summary: "임대료 지원 공모",
+      description: "빈 점포에 청년 점포를 공모하고 2년 임대료를 지원합니다.",
+      baseCost: 12,
+      minCost: 5,
+      maxCost: 20,
+      expectedEffects: ["상품 구성 다양화", "평균 연령 하락"],
+      risks: ["기존 상인과 갈등", "지원 종료 후 이탈"],
+      effects: effects({ effectiveness: 5, satisfaction: 6, equity: 4, feasibility: 6, finance: -2, sustainability: 4 }),
+    },
+    {
+      id: "parking",
+      title: "고객 주차·셔틀",
+      summary: "2시간 무료와 순환버스",
+      description: "공영주차장 2시간 무료와 시장 순환 셔틀을 운영합니다.",
+      baseCost: 10,
+      minCost: 4,
+      maxCost: 18,
+      expectedEffects: ["방문 장벽 완화"],
+      risks: ["재래 고객만 유지되고 신규 수요는 제한적"],
+      effects: effects({ effectiveness: 3, satisfaction: 6, equity: 4, feasibility: 7, finance: -2, sustainability: 2 }),
+    },
+  ],
+  stakeholders: [
+    { id: "merchant", name: "상인회", concern: "공사 피해와 임대료" },
+    { id: "youth", name: "청년 예비창업자", concern: "공정한 입점 기회" },
+    { id: "resident", name: "인근 주민", concern: "주차 혼잡" },
+  ],
+  events: [
+    { id: "work", actor: "상인회", emoji: "📢", message: "시설 공사 기간 임시 매출 보전을 요구하는 집회가 열렸습니다.", policyId: "facility", minShare: 0.25 },
+    { id: "fee", actor: "지역 언론", emoji: "📰", message: "공동 배달 수수료가 소규모 점포에 부담이라는 기사가 나갔습니다.", policyId: "digital", minShare: 0.15 },
+    { id: "conflict", actor: "주민", emoji: "🏘️", message: "청년 카페형 점포가 전통시장 정체성을 해친다는 민원이 들어왔습니다.", policyId: "youth", minShare: 0.12 },
+  ],
+  indicators: [
+    { id: "sales", label: "시장 매출 지수", baseline: 84, unit: "점", higherIsBetter: true, scale: 0.5, drivers: { effectiveness: 0.8, satisfaction: 0.2 } },
+    { id: "visit", label: "방문 편의 체감", baseline: 47, unit: "점", higherIsBetter: true, scale: 0.5, drivers: { satisfaction: 1 } },
+    { id: "gen", label: "세대 혼합도", baseline: 33, unit: "점", higherIsBetter: true, scale: 0.45, drivers: { sustainability: 0.6, equity: 0.4 } },
+    { id: "fiscal", label: "사업 효율", baseline: 60, unit: "점", higherIsBetter: true, scale: 0.3, drivers: { finance: 0.6, feasibility: 0.4 } },
+  ],
+  educationalTopics: ["decision", "stakeholders", "efficiency"],
+};

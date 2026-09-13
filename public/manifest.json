@@ -1,0 +1,18 @@
+{
+  "name": "정책의사결정자",
+  "short_name": "정책의사결정자",
+  "description": "당신이라면 어떤 정책을 선택하시겠습니까?",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1d4f91",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
