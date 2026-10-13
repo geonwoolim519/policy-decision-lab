@@ -30,3 +30,14 @@ export function allocationShare(
   if (totalBudget <= 0) return 0;
   return (allocations[policyId] ?? 0) / totalBudget;
 }
+
+export function simultaneousFunding(policyCase: PolicyCase) {
+  const minSum = policyCase.policyOptions.reduce((sum, option) => sum + option.minCost, 0);
+  const baseSum = policyCase.policyOptions.reduce((sum, option) => sum + option.baseCost, 0);
+  return {
+    minSum,
+    baseSum,
+    cannotAtMin: minSum > policyCase.totalBudget,
+    cannotAtBase: baseSum > policyCase.totalBudget,
+  };
+}

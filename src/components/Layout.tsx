@@ -19,7 +19,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <img
               src={APP_ICON}
               alt="정책의사결정자"
-              className="h-9 w-9 rounded-xl shadow-sm"
+              className="h-9 w-9 object-contain drop-shadow-sm"
             />
             <div className="leading-tight">
               <p className="text-[11px] font-medium tracking-wide text-sky">

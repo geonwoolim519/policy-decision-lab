@@ -55,6 +55,11 @@ export interface PolicyOption {
   expectedEffects: string[];
   risks: string[];
   effects: PolicyEffects;
+  annualCost?: number;
+  timeline?: string;
+  target?: string;
+  equityNote?: string;
+  fiscalNote?: string;
 }
 
 export interface Stakeholder {
@@ -106,6 +111,13 @@ export interface PolicyCase {
   events: PolicyEventRule[];
   indicators: OutcomeIndicator[];
   educationalTopics: string[];
+  displayNumber?: number;
+  estimatedMinutes?: number;
+  populationProfile?: string;
+  policyObjectives?: string[];
+  coreIssue?: string;
+  debriefQuestions?: string[];
+  scenarioNote?: string;
 }
 
 export interface EvaluationScores {
@@ -134,7 +146,23 @@ export interface SimulationResult {
     unit: string;
     higherIsBetter: boolean;
   }[];
+  eventIds?: string[];
+  strengths?: string[];
+  missedRisks?: string[];
+  nextSteps?: string[];
+  scoreReasons?: Partial<Record<keyof Omit<EvaluationScores, "overall">, string>>;
+  attempt?: number;
 }
+
+export interface SimulationDraft {
+  caseId: string;
+  step: number;
+  problemIds: string[];
+  allocations: Record<string, number>;
+  updatedAt: string;
+}
+
+export type CaseStatus = "idle" | "draft" | "done";
 
 export interface LearningConcept {
   id: string;

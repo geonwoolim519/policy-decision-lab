@@ -1,6 +1,6 @@
 import type { EvaluationScores, PolicyCase } from "../types/policy";
 import { weightedEffects } from "./outcomeEngine";
-import { clamp, sumValues } from "./math";
+import { clamp, intensity, sumValues } from "./math";
 
 export function evaluatePolicy(
   policyCase: PolicyCase,
@@ -33,12 +33,17 @@ export function evaluatePolicy(
       (active.length >= 5 ? 6 : 0) -
       (policyCase.difficulty === "advanced" ? 4 : 0),
   );
+  const annualBurden = policyCase.policyOptions.reduce((sum, option) => {
+    const factor = intensity(allocations[option.id] ?? 0, option.baseCost);
+    return sum + (option.annualCost ?? 0) * factor;
+  }, 0);
   const fiscal = clamp(
     62 +
       effects.finance * 3.4 +
       unusedShare * 18 -
       (unusedShare < 0.02 ? 4 : 0) -
-      (unusedShare > 0.35 ? 10 : 0),
+      (unusedShare > 0.35 ? 10 : 0) -
+      (annualBurden / Math.max(policyCase.totalBudget, 1)) * 10,
   );
   const sustainability = clamp(53 + effects.sustainability * 3.1 - (unusedShare > 0.4 ? 6 : 0));
   const efficiency = clamp(

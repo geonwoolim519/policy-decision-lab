@@ -2,38 +2,47 @@ import { useMemo, useState } from "react";
 import { POLICY_CASES } from "../data/cases";
 import { CATEGORIES } from "../data/categories";
 import { CaseCard } from "../components/CaseCard";
-import type { CategoryId, Difficulty } from "../types/policy";
+import { STATUS_LABEL, coreIssueOf } from "../lib/caseMeta";
+import { getCaseStatus, progressStats } from "../store/progress";
+import type { CaseStatus, CategoryId, Difficulty } from "../types/policy";
 
 export function CasesPage() {
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [difficulty, setDifficulty] = useState<Difficulty | "all">("all");
+  const [status, setStatus] = useState<CaseStatus | "all">("all");
   const [query, setQuery] = useState("");
+  const stats = progressStats();
 
   const filtered = useMemo(() => {
     return POLICY_CASES.filter((item) => {
       if (category !== "all" && item.category !== category) return false;
       if (difficulty !== "all" && item.difficulty !== difficulty) return false;
+      if (status !== "all" && getCaseStatus(item.id) !== status) return false;
       if (query.trim()) {
-        const hay = `${item.title} ${item.description} ${item.cityName}`;
+        const hay = `${item.title} ${item.description} ${item.cityName} ${coreIssueOf(item)}`;
         if (!hay.includes(query.trim())) return false;
       }
       return true;
     });
-  }, [category, difficulty, query]);
+  }, [category, difficulty, query, status]);
 
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-2xl font-bold text-navy">정책사례</h2>
         <p className="mt-1 text-sm text-muted">
-          분야를 고르고, 가상의 정책 담당자가 되어 의사결정을 시작해 보세요.
+          분야를 고르고, 가상의 정책 담당자가 되어 의사결정을 시작해 보세요. 기존 15개와
+          신규 15개를 합쳐 모두 {POLICY_CASES.length}개입니다.
+        </p>
+        <p className="mt-2 text-sm text-navy">
+          진행 {stats.completed}/{POLICY_CASES.length} 완료
         </p>
       </div>
 
       <input
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="사례 검색"
+        placeholder="제목, 도시, 쟁점으로 검색"
         className="w-full rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none ring-sky/30 focus:ring-2"
       />
 
@@ -52,7 +61,7 @@ export function CasesPage() {
         ))}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {(["all", "beginner", "intermediate", "advanced"] as const).map((item) => (
           <Chip key={item} active={difficulty === item} onClick={() => setDifficulty(item)}>
             {item === "all"
@@ -62,6 +71,17 @@ export function CasesPage() {
                 : item === "intermediate"
                   ? "중급"
                   : "심화"}
+          </Chip>
+        ))}
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        <Chip active={status === "all"} onClick={() => setStatus("all")}>
+          모든 상태
+        </Chip>
+        {(["idle", "draft", "done"] as const).map((item) => (
+          <Chip key={item} active={status === item} onClick={() => setStatus(item)}>
+            {STATUS_LABEL[item]}
           </Chip>
         ))}
       </div>

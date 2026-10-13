@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { POLICY_CASES, getCaseById } from "../data/cases";
 import { ScoreBars } from "../components/ScoreChart";
+import { caseNumber } from "../lib/caseMeta";
 import { progressStats } from "../store/progress";
 
 export function MyPolicyPage() {
@@ -11,7 +12,8 @@ export function MyPolicyPage() {
       <div>
         <h2 className="text-2xl font-bold text-navy">나의 정책</h2>
         <p className="mt-1 text-sm text-muted">
-          지금까지의 결정은 성격 유형이 아니라, 이 시뮬레이션 안의 경향입니다.
+          지금까지의 결정은 성격 유형이 아니라, 이 시뮬레이션 안의 경향입니다. 완료{" "}
+          {stats.completed}/{POLICY_CASES.length}.
         </p>
       </div>
 
@@ -65,21 +67,36 @@ export function MyPolicyPage() {
               const policyCase = getCaseById(result.caseId);
               if (!policyCase) return null;
               return (
-                <Link
+                <div
                   key={result.caseId}
-                  to={`/simulate/${result.caseId}`}
-                  className="flex items-center justify-between rounded-2xl border border-line bg-white p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4"
                 >
                   <div>
                     <p className="font-semibold text-navy">
-                      {policyCase.emoji} {policyCase.title}
+                      {policyCase.emoji} 사례 {String(caseNumber(policyCase)).padStart(2, "0")}{" "}
+                      {policyCase.title}
                     </p>
                     <p className="text-xs text-muted">
                       {new Date(result.completedAt).toLocaleString("ko-KR")}
+                      {result.attempt ? ` · ${result.attempt}번째 시도` : ""}
                     </p>
                   </div>
-                  <p className="text-xl font-bold text-navy">{result.scores.overall}</p>
-                </Link>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold text-navy">{result.scores.overall}</p>
+                    <Link
+                      to={`/simulate/${result.caseId}?view=result`}
+                      className="rounded-xl border border-line px-3 py-2 text-xs font-semibold text-navy"
+                    >
+                      결과 다시 보기
+                    </Link>
+                    <Link
+                      to={`/simulate/${result.caseId}?revise=1`}
+                      className="rounded-xl bg-navy px-3 py-2 text-xs font-semibold text-white"
+                    >
+                      재설계
+                    </Link>
+                  </div>
+                </div>
               );
             })}
           </div>

@@ -1,4 +1,9 @@
-import type { CategoryId, SimulationResult } from "../types/policy";
+import type {
+  CategoryId,
+  CaseStatus,
+  SimulationDraft,
+  SimulationResult,
+} from "../types/policy";
 import { getCaseById } from "../data/cases";
 import { CATEGORIES } from "../data/categories";
 
@@ -6,19 +11,35 @@ const STORAGE_KEY = "policy-decision-maker-v1";
 
 interface StoreShape {
   results: SimulationResult[];
+  drafts: Record<string, SimulationDraft>;
+  history: Record<string, SimulationResult[]>;
 }
 
 function emptyStore(): StoreShape {
-  return { results: [] };
+  return { results: [], drafts: {}, history: {} };
+}
+
+function normalize(parsed: unknown): StoreShape {
+  if (!parsed || typeof parsed !== "object") return emptyStore();
+  const data = parsed as Partial<StoreShape>;
+  return {
+    results: Array.isArray(data.results) ? data.results : [],
+    drafts:
+      data.drafts && typeof data.drafts === "object" && !Array.isArray(data.drafts)
+        ? data.drafts
+        : {},
+    history:
+      data.history && typeof data.history === "object" && !Array.isArray(data.history)
+        ? data.history
+        : {},
+  };
 }
 
 export function loadStore(): StoreShape {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyStore();
-    const parsed = JSON.parse(raw) as StoreShape;
-    if (!Array.isArray(parsed.results)) return emptyStore();
-    return parsed;
+    return normalize(JSON.parse(raw));
   } catch {
     return emptyStore();
   }
@@ -30,16 +51,60 @@ function saveStore(store: StoreShape) {
 
 export function saveResult(result: SimulationResult) {
   const store = loadStore();
+  const previous = store.history[result.caseId] ?? [];
+  const attempt = previous.length + 1;
+  const withAttempt = { ...result, attempt };
   const withoutSame = store.results.filter((item) => item.caseId !== result.caseId);
-  saveStore({ results: [result, ...withoutSame] });
+  const { [result.caseId]: _removed, ...restDrafts } = store.drafts;
+  saveStore({
+    results: [withAttempt, ...withoutSame],
+    drafts: restDrafts,
+    history: {
+      ...store.history,
+      [result.caseId]: [withAttempt, ...previous].slice(0, 5),
+    },
+  });
+  return withAttempt;
 }
 
 export function getResult(caseId: string) {
   return loadStore().results.find((item) => item.caseId === caseId);
 }
 
+export function getHistory(caseId: string) {
+  return loadStore().history[caseId] ?? [];
+}
+
+export function getPreviousResult(caseId: string) {
+  return getHistory(caseId)[1];
+}
+
+export function saveDraft(draft: SimulationDraft) {
+  const store = loadStore();
+  saveStore({
+    ...store,
+    drafts: { ...store.drafts, [draft.caseId]: draft },
+  });
+}
+
+export function getDraft(caseId: string) {
+  return loadStore().drafts[caseId];
+}
+
+export function clearDraft(caseId: string) {
+  const store = loadStore();
+  const { [caseId]: _removed, ...rest } = store.drafts;
+  saveStore({ ...store, drafts: rest });
+}
+
+export function getCaseStatus(caseId: string): CaseStatus {
+  if (getResult(caseId)) return "done";
+  if (getDraft(caseId)) return "draft";
+  return "idle";
+}
+
 export function progressStats() {
-  const results = loadStore().results;
+  const results = loadStore().results.filter((item) => getCaseById(item.caseId));
   const completed = results.length;
   const average =
     completed === 0

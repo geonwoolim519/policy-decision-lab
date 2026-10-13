@@ -27,9 +27,9 @@ export function HomePage() {
         <div className="grid gap-6 p-6 md:grid-cols-[1.15fr_0.85fr] md:p-10">
           <div>
             <div className="mb-3 md:hidden">
-              <img src={APP_ICON} alt="" className="h-14 w-14 rounded-2xl shadow" />
+              <img src={APP_ICON} alt="" className="h-14 w-14 object-contain drop-shadow" />
             </div>
-            <p className="text-sm font-medium text-sky">공주대학교 행정학과 체험형 학습</p>
+            <p className="text-sm font-medium text-sky">체험형 정책 학습</p>
             <h2 className="mt-2 text-3xl font-bold leading-tight text-navy md:text-4xl">
               당신이라면 어떤 정책을
               <br />
@@ -38,7 +38,8 @@ export function HomePage() {
             <p className="mt-4 max-w-xl text-[15px] leading-7 text-muted">
               제한된 예산과 복잡한 이해관계 속에서 직접 정책을 결정하고 그 결과를
               경험해보세요. 정답은 없습니다. 선택에 따라 시민 만족, 형평성, 재정
-              건전성이 다르게 움직입니다.
+              건전성이 다르게 움직입니다. 가상 시나리오 {POLICY_CASES.length}건을
+              이어서 비교할 수 있습니다.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -59,7 +60,7 @@ export function HomePage() {
             <img
               src={APP_ICON}
               alt="정책의사결정자 아이콘"
-              className="h-64 w-64 rounded-[2rem] object-cover shadow-lg"
+              className="h-64 w-64 object-contain drop-shadow-lg"
             />
           </div>
         </div>

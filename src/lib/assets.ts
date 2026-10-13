@@ -1,1 +1,1 @@
-export const APP_ICON = `${import.meta.env.BASE_URL}app-icon.png`;
+export const APP_ICON = `${import.meta.env.BASE_URL}app-icon.png?v=2`;
