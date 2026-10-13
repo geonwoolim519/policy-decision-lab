@@ -23,7 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
             />
             <div className="leading-tight">
               <p className="text-[11px] font-medium tracking-wide text-sky">
-                POLICY DECISION LAB
+                POLICY DECISION MAKER
               </p>
               <h1 className="text-[15px] font-semibold text-navy">정책의사결정자</h1>
             </div>
